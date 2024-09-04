@@ -1,3 +1,5 @@
+import Header from './Header';
 import Sidebar from './Sidebar';
+import ProductForm from './ProductForm';
 
-export { Sidebar };
+export { Header, Sidebar, ProductForm };
