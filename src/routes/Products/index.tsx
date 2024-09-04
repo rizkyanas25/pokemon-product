@@ -1,7 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Box } from '@mui/material';
-import { TextField, InputAdornment } from '@mui/material';
+import {
+  TextField,
+  InputAdornment,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio
+} from '@mui/material';
 import { Search } from '@mui/icons-material';
 
 import { PokeBall } from '../../assets/Images';
@@ -16,6 +24,8 @@ function Products() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [openProducts, setOpenProducts] = useState<IProduct | null>(null);
   const [search, setSearch] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('price');
+  const [sort, setSort] = useState<string>('asc');
 
   const modalStyle = {
     position: 'absolute',
@@ -28,10 +38,41 @@ function Products() {
     p: 4
   };
 
-  useEffect(() => {
-    console.log('localProducts', localProducts);
-    setProducts([...localProducts]);
-  }, [localProducts]);
+  const sortedProducts = () => {
+    let temp: IProduct[] = [];
+    if (search) {
+      localProducts.forEach((el) => {
+        if (el.name.includes(search)) {
+          temp.push(el);
+        }
+      });
+    } else {
+      temp = [...localProducts];
+    }
+    if (sortBy === 'price') {
+      if (sort == 'asc') {
+        temp.sort((a, b) => b.price - a.price);
+      } else {
+        temp.sort((a, b) => a.price - b.price);
+      }
+    } else {
+      if (sort == 'asc') {
+        temp.sort((a, b) => a.stock - b.stock);
+      } else {
+        temp.sort((a, b) => b.stock - a.stock);
+      }
+    }
+
+    return temp;
+  };
+
+  const handleSortBy = (event: ChangeEvent<HTMLInputElement>) => {
+    setSortBy((event.target as HTMLInputElement).value);
+  };
+
+  const handleSort = (event: ChangeEvent<HTMLInputElement>) => {
+    setSort((event.target as HTMLInputElement).value);
+  };
 
   return (
     <div className='w-full h-full flex flex-col gap-7 relative'>
@@ -44,9 +85,9 @@ function Products() {
         <span className='text-blue-500 font-bold'>Add New Product</span>
       </div>
 
-      <div className='w-full h-20 border rounded-xl'>
+      <div className='w-full flex justify-between'>
         <TextField
-          className='w-full'
+          className='rounded-xl'
           label='Seach'
           type='number'
           variant='outlined'
@@ -62,11 +103,47 @@ function Products() {
             }
           }}
         />
+        <div className='flex gap-4 items-center'>
+          <FormControl style={{ display: 'flex' }}>
+            <FormLabel id='demo-radio-buttons-group-label'>Sort by:</FormLabel>
+            <RadioGroup
+              aria-labelledby='demo-radio-buttons-group-label'
+              defaultValue='price'
+              name='radio-buttons-group'
+              value={sortBy}
+              onChange={handleSortBy}
+            >
+              <FormControlLabel
+                value='price'
+                control={<Radio />}
+                label='Price'
+              />
+              <FormControlLabel
+                value='stock'
+                control={<Radio />}
+                label='Stock'
+              />
+            </RadioGroup>
+          </FormControl>
+          <FormControl style={{ display: 'flex' }}>
+            <FormLabel id='demo-radio-buttons-group-label'>Sort:</FormLabel>
+            <RadioGroup
+              aria-labelledby='demo-radio-buttons-group-label'
+              defaultValue='asc'
+              name='radio-buttons-group'
+              value={sort}
+              onChange={handleSort}
+            >
+              <FormControlLabel value='asc' control={<Radio />} label='Asc' />
+              <FormControlLabel value='desc' control={<Radio />} label='Desc' />
+            </RadioGroup>
+          </FormControl>
+        </div>
       </div>
 
       <div className='w-full h-full border rounded-xl overflow flex flex-wrap p-7 gap-7'>
-        {products.length > 0 &&
-          products.map((el: IProduct, id: number) => {
+        {sortedProducts().length > 0 &&
+          sortedProducts().map((el: IProduct, id: number) => {
             return (
               <div
                 key={id}

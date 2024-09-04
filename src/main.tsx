@@ -6,7 +6,6 @@ import { persistReducer, persistStore } from 'redux-persist';
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import thunk from 'redux-thunk';
 
 import './index.css';
 import Root from './routes/root';
