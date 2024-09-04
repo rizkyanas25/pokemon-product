@@ -11,7 +11,7 @@ const reducer = (
   switch (action.type) {
     case actionTypes.ADD_PRODUCT: {
       const newProduct: IProduct = {
-        id: Math.random() + '', // not really unique
+        id: action.product.id,
         name: action.product.name,
         price: action.product.price,
         stock: action.product.stock,
@@ -24,13 +24,32 @@ const reducer = (
         products: temp
       };
     }
-    case actionTypes.REMOVE_PRODUCT: {
-      const updatedProducts: IProduct[] = state.products.filter(
-        (product) => product.id !== action.product.id
-      );
+    case actionTypes.EDIT_PRODUCT: {
+      const newProduct: IProduct = {
+        id: action.product.id,
+        name: action.product.name,
+        price: action.product.price,
+        stock: action.product.stock,
+        pokeData: action.product.pokeData
+      };
+      const temp = [...state.products];
+      const index = temp.findIndex((el) => (el.id = newProduct.id));
+      temp[index] = newProduct;
       return {
         ...state,
-        products: updatedProducts
+        products: temp
+      };
+    }
+    case actionTypes.REMOVE_PRODUCT: {
+      const temp = [...state.products];
+      const objWithIdIndex = temp.findIndex(
+        (obj: any) => obj.id === action.product.id
+      );
+      temp.splice(objWithIdIndex, 1);
+      console.log('temp', temp);
+      return {
+        ...state,
+        products: temp
       };
     }
   }

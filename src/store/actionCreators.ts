@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 
-export function addArticle(product: IProduct) {
+export function addProduct(product: IProduct) {
   const action: ProductsAction = {
     type: actionTypes.ADD_PRODUCT,
     product
@@ -9,7 +9,16 @@ export function addArticle(product: IProduct) {
   return simulateHttpRequest(action);
 }
 
-export function removeArticle(product: IProduct) {
+export function editProduct(product: IProduct) {
+  const action: ProductsAction = {
+    type: actionTypes.EDIT_PRODUCT,
+    product
+  };
+
+  return simulateHttpRequest(action);
+}
+
+export function removeProduct(product: IProduct) {
   const action: ProductsAction = {
     type: actionTypes.REMOVE_PRODUCT,
     product

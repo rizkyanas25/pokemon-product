@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface IProduct {
-  id: string;
+  id: number;
   name: string;
   price: number;
   stock: number;
-  pokeData: never;
+  pokeData: any;
 }
 
 type ProductsState = {

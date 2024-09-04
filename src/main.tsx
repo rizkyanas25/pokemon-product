@@ -1,14 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import './index.css';
+import storage from 'redux-persist/lib/storage';
+import { persistReducer, persistStore } from 'redux-persist';
+import { configureStore, Store } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import thunk from 'redux-thunk';
 
+import './index.css';
 import Root from './routes/root';
 import ErrorPage from './routes/errorPage';
 import Products from './routes/Products';
-
-import { configureStore, Store } from '@reduxjs/toolkit';
-import { Provider } from 'react-redux';
 import reducer from './store/reducer';
 
 const router = createBrowserRouter([
@@ -25,14 +28,25 @@ const router = createBrowserRouter([
   }
 ]);
 
+const persistConfig = {
+  key: 'root',
+  storage
+};
+
+const persistedReducer = persistReducer(persistConfig, reducer);
+
 const store: Store<ProductsState, ProductsAction> & {
   dispatch: DispatchType;
-} = configureStore({ reducer });
+} = configureStore({ reducer: persistedReducer });
+
+const persistor = persistStore(store);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterProvider router={router} />
+      </PersistGate>
     </Provider>
   </StrictMode>
 );

@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Modal, Box, Typography } from '@mui/material';
+import { Modal, Box } from '@mui/material';
+import { TextField, InputAdornment } from '@mui/material';
+import { Search } from '@mui/icons-material';
 
 import { PokeBall } from '../../assets/Images';
 import { ProductForm } from '../../components';
+import currencyParser from '../../helpers/currencyParser';
 
 function Products() {
   const [isOpenModal, setIsOpenModal] = useState<string | null>(null);
-  const [products, setProducts] = useState<IProduct[] | []>([]);
   const localProducts: readonly IProduct[] = useSelector(
     (state: ProductsState) => state.products
   );
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [openProducts, setOpenProducts] = useState<IProduct | null>(null);
+  const [search, setSearch] = useState<string>('');
 
   const modalStyle = {
     position: 'absolute',
@@ -24,18 +29,9 @@ function Products() {
   };
 
   useEffect(() => {
-    // const arr = [];
-    // for (let i = 0; i < 30; i++) {
-    //   arr.push({
-    //     id: i + '',
-    //     name: 'Abc',
-    //     price: 1,
-    //     stock: 1
-    //   });
-    // }
-    // setProducts(arr);
     console.log('localProducts', localProducts);
-  }, []);
+    setProducts([...localProducts]);
+  }, [localProducts]);
 
   return (
     <div className='w-full h-full flex flex-col gap-7 relative'>
@@ -48,7 +44,25 @@ function Products() {
         <span className='text-blue-500 font-bold'>Add New Product</span>
       </div>
 
-      <div className='w-full h-20 border rounded-xl'></div>
+      <div className='w-full h-20 border rounded-xl'>
+        <TextField
+          className='w-full'
+          label='Seach'
+          type='number'
+          variant='outlined'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <Search />
+                </InputAdornment>
+              )
+            }
+          }}
+        />
+      </div>
 
       <div className='w-full h-full border rounded-xl overflow flex flex-wrap p-7 gap-7'>
         {products.length > 0 &&
@@ -56,9 +70,25 @@ function Products() {
             return (
               <div
                 key={id}
-                className='p-4 rounded-xl product-card hover-opacity border border-1 border-gray-200'
+                className='p-4 rounded-lg product-card hover-opacity border border-1 border-gray-200'
+                onClick={() => {
+                  setOpenProducts(el);
+                  setIsOpenModal('open');
+                }}
               >
-                <p>{el.name}</p>
+                <p className='text-2xl font-bold text-poke-blue'>{el.name}</p>
+                <p className='text-gray-300 capitalize text-poke-blue2'>
+                  {el.pokeData.name}
+                </p>
+                <img
+                  src={el.pokeData.sprites.front_default}
+                  alt='front-sprites'
+                  className='w-full h-auto -my-4'
+                />
+                <p className='font-bold text-xl'>
+                  {currencyParser.format(el.price)}
+                </p>
+                <p className='text-xs'>In Stock: {el.stock}</p>
               </div>
             );
           })}
@@ -66,11 +96,24 @@ function Products() {
 
       <Modal
         open={isOpenModal !== null}
-        onClose={() => setIsOpenModal(null)}
+        onClose={() => {
+          setIsOpenModal(null);
+          setOpenProducts(null);
+        }}
         aria-labelledby='modal-modal-title'
         aria-describedby='modal-modal-description'
       >
-        <Box sx={modalStyle}>{isOpenModal == 'add' && <ProductForm />}</Box>
+        <Box sx={modalStyle}>
+          {isOpenModal == 'add' && (
+            <ProductForm setIsOpenModal={setIsOpenModal} />
+          )}
+          {isOpenModal == 'open' && (
+            <ProductForm
+              setIsOpenModal={setIsOpenModal}
+              product={openProducts}
+            />
+          )}
+        </Box>
       </Modal>
     </div>
   );
